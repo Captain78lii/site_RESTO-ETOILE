@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notre Carte - Resto Etoile</title>
+    <link rel="stylesheet" href="../css/styles.css">
+    <script src="../js/script.js"></script>
+</head>
+<body>
+
+    <nav>
+        <div class="logo">Resto Etoile</div>
+        <ul>
+            <li><a href="../index.html">Accueil</a></li>
+            <li><a href="produits.html" style="color:var(--accent-gold)">La Carte</a></li>
+            <li><a href="panier.html" class="cart-link">Panier</a></li>
+            <li><a href="login.html">Connexion</a></li>
+
+        </ul>
+    </nav>
+
+    <div class="container">
+        <div style="text-align: center; margin-bottom: 2rem;">
+            <input type="text" id="search-input" class="search-bar" placeholder="🍔 Rechercher un plat, un ingrédient...">
+        </div>
+        <h2 class="category-title">Nos Sandwichs Classiques</h2>
+        <div class="products-grid">
+            <div class="product-card">
+                <img src="https://placehold.co/300x200/101f3c/f4c430?text=Kebab" alt="Kebab" class="product-img">
+                <div class="product-info">
+                    <h3>Kebab</h3>
+                    <p>Classique ou galette</p>
+                    <div class="price-tag">8.00€</div>
+                    <button class="btn add-to-cart"
+                    data-id="1" 
+                    data-name="Kebab" 
+                    data-price="8.00">
+                Ajouter
+            </button>
+        </div>
+    </div>
+            <div class="product-card">
+                <img src="https://placehold.co/300x200/101f3c/f4c430?text=Steak" alt="Steak" class="product-img">
+                <div class="product-info">
+                    <h3>Steak</h3>
+                    <p>Sandwich steak boucher</p>
+                    <div class="price-tag">8.00€ <span class="price-detail">(avec frites)</span></div>
+                    <button class="btn add-to-cart"
+                    data-id="2" 
+                    data-name="Steak" 
+                    data-price="8.00">
+                    Ajouter
+                    </button>
+                </div>
+            </div>
+            <div class="product-card">
+                <img src="https://placehold.co/300x200/101f3c/f4c430?text=Chicken" alt="Chicken" class="product-img">
+                <div class="product-info">
+                    <h3>Chicken Paprika</h3>
+                    <p>Poulet mariné paprika</p>
+                    <div class="price-tag">8.00€ <span class="price-detail">(avec frites)</span></div>
+                    <button class="btn add-to-cart"
+                    data-id="3" 
+                    data-name="Paprika" 
+                    data-price="8.00">
+                    Ajouter
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <h2 class="category-title">Nos Burgers</h2>
+        <div class="products-grid">
+            <div class="product-card">
+                <img src="https://placehold.co/300x200/101f3c/f4c430?text=Cheese" alt="Cheese Burger" class="product-img">
+                <div class="product-info">
+                    <h3>Cheese Burger</h3>
+                    <div class="price-tag">5.00€ <span class="price-detail">(Avec frites)</span></div>
+                    <button class="btn add-to-cart"
+                    data-id="4" 
+                    data-name="Cheese" 
+                    data-price="5.00">
+                    Ajouter
+                    </button>
+                </div>
+            </div>
+            <div class="product-card">
+                <img src="https://placehold.co/300x200/101f3c/f4c430?text=Tank" alt="Tank" class="product-img">
+                <div class="product-info">
+                        <h3>Tank</h3>
+                        <p>4 Steaks !</p>
+                        <div class="price-tag">7.50€</div>
+                        <button class="btn add-to-cart"
+                            data-id="5" 
+                            data-name="Tank Burger" 
+                            data-price="7.50">
+                        Ajouter
+                    </button>
+                </div>
+            </div>
+             <div class="product-card">
+                <img src="https://placehold.co/300x200/101f3c/f4c430?text=Hummer" alt="Hummer" class="product-img">
+                <div class="product-info">
+                    <h3>Hummer</h3>
+                    <p>Double toast - Steak</p>
+                    <div class="price-tag">9.00€ <span class="price-detail">(Avec frites)</span></div>
+                    <button class="btn add-to-cart"
+                    data-id="6" 
+                    data-name="Hummer" 
+                    data-price="8.00">
+                    Ajouter
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <h2 class="category-title">Nos Assiettes</h2>
+        <div class="products-grid">
+             <div class="product-card">
+                <img src="https://placehold.co/300x200/101f3c/f4c430?text=Assiette+Mixte" alt="Mixte" class="product-img">
+                <div class="product-info">
+                    <h3>Mixte 3 Viandes</h3>
+                    <p>Assiette copieuse</p>
+                    <div class="price-tag">15.00€</div>
+                    <button class="btn add-to-cart"
+                    data-id="7" 
+                    data-name="Assiette Mixte" 
+                    data-price="15.00">
+                    Ajouter
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <h2 class="category-title">Nos Tacos Maison</h2>
+        <div class="products-grid">
+             <div class="product-card">
+                <img src="https://placehold.co/300x200/101f3c/f4c430?text=Tacos+2" alt="Tacos" class="product-img">
+                <div class="product-info">
+                    <h3>Menu Tacos 2 Viandes</h3>
+                    <p>Servi avec frites et boisson</p>
+                    <div class="price-tag">10.00€</div>
+                    <button class="btn add-to-cart"
+                    data-id="8" 
+                    data-name="Tacos 2 Viandes" 
+                    data-price="10.00">
+                    Ajouter
+                    </button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</body>
+</html>
