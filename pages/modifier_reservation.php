@@ -10,13 +10,11 @@ if (!isset($_SESSION['user_id']) || !isset($_GET['id'])) {
 $id_res = intval($_GET['id']);
 $user_id = intval($_SESSION['user_id']);
 
-// Récupère les données actuelles
 $res = mysqli_query($conn, "SELECT * FROM reservations WHERE id = $id_res AND user_id = $user_id");
 $data = mysqli_fetch_assoc($res);
 
 if (!$data) { header("Location: profil.php"); exit(); }
 
-// Traitement de la modification
 if (isset($_POST['update_res'])) {
     csrf_verify();
 

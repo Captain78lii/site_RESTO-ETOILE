@@ -3,13 +3,12 @@ include($_SERVER['DOCUMENT_ROOT'] . '/db.php');
 include($_SERVER['DOCUMENT_ROOT'] . '/header.php');
 include($_SERVER['DOCUMENT_ROOT'] . '/upload_functions.php');
 
-// Sécurité : Seul l'administrateur connecté peut accéder à cette page
+// admin uniquement
 if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] !== 'admin') {
     echo "<div class='container'><p style='color:red; text-align:center; font-weight:bold; margin-top:50px;'>Accès refusé. Vous devez être administrateur.</p></div>";
     exit();
 }
 
-// Vérification de la présence de l'identifiant du produit dans l'URL
 if (!isset($_GET['id'])) {
     header("Location: /pages/admin.php");
     exit();
@@ -17,12 +16,10 @@ if (!isset($_GET['id'])) {
 
 $id_prod = intval($_GET['id']);
 
-// 1. Récupération des informations actuelles du produit
 $query = "SELECT * FROM produits WHERE id = $id_prod";
 $result = mysqli_query($conn, $query);
 $prod = mysqli_fetch_assoc($result);
 
-// Si le produit n'existe pas en BDD
 if (!$prod) {
     echo "<div class='container'><p style='color:red; text-align:center; font-weight:bold; margin-top:50px;'>Produit introuvable.</p></div>";
     exit();
@@ -30,7 +27,6 @@ if (!$prod) {
 
 $message = "";
 
-// 2. Traitement du formulaire de modification lors de la soumission
 if (isset($_POST['modifier_produit'])) {
     csrf_verify();
 
@@ -39,7 +35,7 @@ if (isset($_POST['modifier_produit'])) {
     $prix = floatval($_POST['prix']);
     $categorie = mysqli_real_escape_string($conn, $_POST['categorie']);
 
-    // Conserve l'image actuelle si l'admin n'en envoie pas une nouvelle
+    // garde l'image actuelle si rien de nouveau n'est envoyé
     $resultat_image = handle_image_upload('image_file', $prod['image_url']);
 
     if (is_array($resultat_image)) {
@@ -57,7 +53,6 @@ if (isset($_POST['modifier_produit'])) {
 
         if (mysqli_query($conn, $update_query)) {
             $message = "<p style='color:green; font-weight:bold; text-align:center;'>Le produit a bien été mis à jour ! ✨ Redirection en cours...</p>";
-            // Redirection vers l'administration après 2 secondes
             header("refresh:2;url=/pages/admin.php");
         } else {
             $message = "<p style='color:red;'>Erreur lors de la mise à jour : " . mysqli_error($conn) . "</p>";

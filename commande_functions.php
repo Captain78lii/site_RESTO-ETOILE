@@ -1,5 +1,5 @@
 <?php
-// Résume les options d'une ligne de commande (viandes, sauces, suppléments, menu...) en texte lisible
+// options (json) -> texte lisible pour affichage
 function formatOptionsCommande($options_json) {
     if (!$options_json) return '';
     $options = json_decode($options_json, true);

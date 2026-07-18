@@ -1,41 +1,30 @@
 <?php 
-$page_simple = true; //  c'est une page simple
+$page_simple = true;
 
-// 1. Inclusion de la base de données et du header
 include($_SERVER['DOCUMENT_ROOT'] . '/db.php');
 include($_SERVER['DOCUMENT_ROOT'] . '/header.php');
 
-// 2. Traitement du formulaire de connexion
 if (isset($_POST['login'])) {
     csrf_verify();
 
-    $email = $_POST['email']; // Plus besoin de mysqli_real_escape_string ici !
+    $email = $_POST['email']; // requête préparée, pas besoin d'échapper
     $password = $_POST['mot_de_passe'];
 
-    // 🆕 1. Préparation de la requête avec un marqueur '?'
     $stmt = mysqli_prepare($conn, "SELECT * FROM utilisateurs WHERE email = ?");
-    
+
     if ($stmt) {
-        // 🆕 2. Liaison du paramètre (s = string)
         mysqli_stmt_bind_param($stmt, "s", $email);
-        
-        // 🆕 3. Exécution de la requête
         mysqli_stmt_execute($stmt);
-        
-        // 🆕 4. Récupération du résultat
         $result = mysqli_stmt_get_result($stmt);
         $user = mysqli_fetch_assoc($result);
-        
-        // 🆕 5. Fermeture de la requête préparée
         mysqli_stmt_close($stmt);
 
-        // Vérification du mot de passe
         if ($user && password_verify($password, $user['mot_de_passe'])) {
-            // Régénère l'id de session à la connexion pour éviter la fixation de session
+            // évite la fixation de session
             session_regenerate_id(true);
             $_SESSION['user_id'] = $user['id'];
             $_SESSION['user_nom'] = $user['nom'];
-            $_SESSION['user_role'] = $user['role']; // S'assurer que le rôle est bien en session !
+            $_SESSION['user_role'] = $user['role'];
             
             echo "<p style='color:green; text-align:center; margin-top:20px;'>Connexion réussie, bienvenue " . htmlspecialchars($user['nom']) . " !</p>";
             header("refresh:2;url=/index.php");

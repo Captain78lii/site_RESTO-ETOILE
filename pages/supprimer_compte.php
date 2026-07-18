@@ -5,10 +5,10 @@ if (isset($_SESSION['user_id'])) {
     csrf_verify();
 
     $user_id = intval($_SESSION['user_id']);
-    // supprime l'utilisateur, supprime aussi ses avis/réservations car clés étrangères en CASCADE)
+    // CASCADE supprime aussi ses avis/réservations
     mysqli_query($conn, "DELETE FROM utilisateurs WHERE id = $user_id");
 
-    session_destroy(); // déconnecte
+    session_destroy();
     header("Location: /index.php?msg=compte_supprime");
     exit();
 }

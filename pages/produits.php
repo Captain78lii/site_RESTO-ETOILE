@@ -39,22 +39,18 @@ include($_SERVER['DOCUMENT_ROOT'] . '/header.php');
 
     <div class="products-grid">
         <?php
-        // récupère les produits depuis la base de données
         $query = "SELECT * FROM produits ORDER BY categorie DESC, prix ASC";
         $result = mysqli_query($conn, $query);
 
-        // 3. Boucle pour afficher chaque produit
         if (mysqli_num_rows($result) > 0) {
             while ($row = mysqli_fetch_assoc($result)) {
                 $nom_lowercase = mb_strtolower($row['nom'], 'UTF-8');
                 $is_tacos = (strpos($nom_lowercase, 'tacos') !== false || strpos($nom_lowercase, 'grill') !== false);
-                
-                // 🆕 RÉCURPÉRATION DE LA CATÉGORIE SAISIE PAR L'ADMIN EN BD
+
                 $categorie_bd = isset($row['categorie']) ? mb_strtolower($row['categorie'], 'UTF-8') : '';
 
-                // Détermination de la catégorie parent : la catégorie choisie par l'admin en BD est prioritaire,
-                // les mots-clés du nom ne servent qu'en secours pour les anciens produits sans catégorie fiable.
-                // (Sans cette priorité, "Panini Nutella" par exemple finissait classé "sandwich" à cause du mot "panini".)
+                // catégorie BD prioritaire, mots-clés du nom en secours seulement
+                // (sinon "Panini Nutella" finissait classé "sandwich" à cause de "panini")
                 $categorie_produit = 'autre';
 
                 if (strpos($categorie_bd, 'tacos') !== false) {
@@ -87,12 +83,11 @@ include($_SERVER['DOCUMENT_ROOT'] . '/header.php');
                     $categorie_produit = 'kids';
                 }
 
-                // Barquettes avec frites (Grande/Moyenne Frites, Viande Frites, Nuggets Frites) et le menu Kids Nuggets :
-                // on demande juste la sauce, sans autre personnalisation.
+                // barquettes frites + kids nuggets : juste le choix de la sauce
                 $besoin_sauce_seule = ($categorie_produit === 'barquette' && strpos($nom_lowercase, 'frites') !== false)
                     || ($categorie_produit === 'kids' && strpos($nom_lowercase, 'nuggets') !== false);
 
-                // Menu Kids Cheese : sauce + crudités uniquement (pas de suppléments ni de menu, la boisson est déjà incluse dans le prix)
+                // kids cheese : sauce + crudités, pas de menu (boisson déjà incluse)
                 $is_kids_cheese = ($categorie_produit === 'kids' && strpos($nom_lowercase, 'cheese') !== false);
                 ?>
                 <div class="product-card" data-category="<?php echo $categorie_produit; ?>">
@@ -155,7 +150,7 @@ include($_SERVER['DOCUMENT_ROOT'] . '/header.php');
 </div>
 
 <?php
-// Liste des boissons disponibles pour l'option "Menu" (+1€) dans les popups de personnalisation
+// boissons dispo pour l'option "Menu" dans les popups
 $boissons_options = '';
 $boissons_query = "SELECT nom FROM produits WHERE categorie = 'Boissons' ORDER BY nom ASC";
 $boissons_result = mysqli_query($conn, $boissons_query);
@@ -165,7 +160,6 @@ if ($boissons_result) {
     }
 }
 
-// Génère le bloc de suppléments (cheddar, œuf, olives, chèvre, piment, boursin, +/- supplément viande)
 function render_supplements_block($prefix, $include_viande = true) {
     $items = [
         'Cheddar' => 0.50,
@@ -189,7 +183,6 @@ function render_supplements_block($prefix, $include_viande = true) {
     return $html;
 }
 
-// Génère le bloc "En faire un Menu" (+1€) avec sélection de la boisson
 function render_menu_block($prefix, $boissons_options) {
     $html = '<div class="form-group" style="margin-bottom: 15px;">';
     $html .= '<label style="font-weight:bold; display:flex; align-items:center; gap:8px; cursor:pointer;">';
@@ -437,7 +430,6 @@ function render_menu_block($prefix, $boissons_options) {
 </div>
 
 <script>
-// Variables globales pour stocker temporairement le produit en cours de personnalisation
 let produitEnCours = { id: null, nom: "", prix: 0 };
 let maxViandesPermis = 1;
 let sandwichEnCours = { id: null, nom: "", prix: 0 };
@@ -446,10 +438,10 @@ let assietteEnCours = { id: null, nom: "", prix: 0 };
 let sauceEnCours = { id: null, nom: "", prix: 0 };
 let kidsCheeseEnCours = { id: null, nom: "", prix: 0 };
 
-// Suivi de la modification d'un article déjà présent dans le panier (au lieu d'un ajout)
+// si actif, on modifie un article du panier au lieu d'en ajouter un
 let editEnCours = { actif: false, cartId: null };
 
-// Prix des suppléments et du passage en Menu, partagés par les 4 popups de personnalisation
+// partagé par les 4 popups de personnalisation
 const SUPPLEMENTS_PRIX = {
     "Cheddar": 0.50,
     "Œuf": 0.50,
@@ -461,14 +453,13 @@ const SUPPLEMENTS_PRIX = {
 };
 const PRIX_MENU = 1.00;
 
-// Affiche/masque le choix de la boisson quand on coche "En faire un Menu"
 function toggleMenuBoisson(prefix) {
     const checkbox = document.getElementById('menu_actif_' + prefix);
     const select = document.getElementById('menu_boisson_' + prefix);
     select.style.display = checkbox.checked ? 'block' : 'none';
 }
 
-// Lit les suppléments cochés et l'option Menu dans le formulaire donné (scope obligatoire : "supplements[]" existe dans les 4 popups)
+// form doit contenir "supplements[]" (présent dans les 4 popups)
 function getSupplementsEtMenu(form) {
     const supplements = Array.from(form.querySelectorAll('input[name="supplements[]"]:checked')).map(cb => cb.value);
     const supplementsTotal = supplements.reduce((sum, s) => sum + (SUPPLEMENTS_PRIX[s] || 0), 0);
@@ -479,7 +470,6 @@ function getSupplementsEtMenu(form) {
     return { supplements, supplementsTotal, menuActif, menuBoisson, menuTotal };
 }
 
-// Réinitialise les suppléments et l'option Menu d'un formulaire (appelé à la fermeture des popups)
 function resetSupplementsEtMenu(form) {
     form.querySelectorAll('input[name="supplements[]"]').forEach(cb => cb.checked = false);
     const menuCheckbox = form.querySelector('input[name="menu_actif"]');
@@ -488,7 +478,7 @@ function resetSupplementsEtMenu(form) {
     if (menuSelect) menuSelect.style.display = 'none';
 }
 
-// Pré-coche les suppléments et l'option Menu déjà choisis, pour la modification d'un article du panier
+// pré-coche les choix déjà faits, pour modifier un article du panier
 function preRemplirSupplementsEtMenu(form, options) {
     if (options.supplements) {
         options.supplements.forEach(nomSupplement => {
@@ -508,7 +498,7 @@ function preRemplirSupplementsEtMenu(form, options) {
     }
 }
 
-// Si l'URL contient ?edit=<cartId>, ouvre la bonne popup pré-remplie avec les choix déjà faits dans le panier
+// ?edit=<cartId> dans l'URL -> ouvre la popup pré-remplie avec l'article du panier
 function chargerArticlePourModification() {
     const params = new URLSearchParams(window.location.search);
     const cartId = params.get('edit');
@@ -573,16 +563,15 @@ function chargerArticlePourModification() {
     }
 
     editEnCours = { actif: true, cartId: cartId };
-    // Nettoie l'URL pour éviter de recharger la modification si la page est rafraîchie
+    // évite de recharger la modification si la page est rafraîchie
     history.replaceState({}, '', '/pages/produits.php');
 }
 
-// Ajoute l'article au panier (cas normal), ou remplace l'article modifié et retourne au panier (cas édition)
 function finaliserAjoutOuModification(id, nom, prix, options, fermerModaleFn) {
     if (!window.monPanier) return;
 
     if (editEnCours.actif) {
-        // On conserve la quantité de l'article d'origine (add() démarre toujours une nouvelle combinaison à 1)
+        // add() démarre toujours à 1, donc on réapplique la quantité d'origine
         const ancienItem = window.monPanier.items.find(i => i.cartId === editEnCours.cartId);
         const qteAConserver = ancienItem ? ancienItem.qty : 1;
         const cartIdCible = options ? `${id}-${JSON.stringify(options)}` : String(id);
@@ -608,14 +597,12 @@ function finaliserAjoutOuModification(id, nom, prix, options, fermerModaleFn) {
     fermerModaleFn();
 }
 
-// 1. Ouvrir la modale Sandwich
 function ouvrirModalSandwich(id, nom, prix) {
     sandwichEnCours = { id: id, nom: nom, prix: parseFloat(prix) };
-    
-    // On change dynamiquement le titre de la modale avec le nom du sandwich
+
     document.getElementById('sandwich-title').innerText = `🥖 Personnalise ton ${nom}`;
-    
-    // Si c'est un Panini, on peut cacher l'option "Pain au choix" car le pain panini est unique
+
+    // panini = pain unique, pas de choix
     const divPain = document.getElementById('pain_choix').closest('.form-group');
     if (nom.toLowerCase().includes('panini')) {
         divPain.style.display = 'none';
@@ -626,7 +613,6 @@ function ouvrirModalSandwich(id, nom, prix) {
     document.getElementById('modal-sandwich').style.display = 'flex';
 }
 
-// 2. Limiter le choix des sauces à 2 maximum
 const sauceCheckboxes = document.querySelectorAll('input[name="sauces_sandwich[]"]');
 sauceCheckboxes.forEach(cb => {
     cb.addEventListener('change', () => {
@@ -638,30 +624,25 @@ sauceCheckboxes.forEach(cb => {
     });
 });
 
-// 3. Fermer la modale
 function fermerModalSandwich() {
     document.getElementById('modal-sandwich').style.display = 'none';
-    // On réinitialise les cases
     sauceCheckboxes.forEach(cb => cb.checked = false);
-    document.querySelectorAll('input[name="crudites[]"]').forEach(cb => cb.checked = true); // recoche STO par défaut
+    document.querySelectorAll('input[name="crudites[]"]').forEach(cb => cb.checked = true); // STO par défaut
     document.getElementById('pain_choix').value = 'Classique';
     resetSupplementsEtMenu(document.getElementById('form-sandwich'));
     editEnCours = { actif: false, cartId: null };
 }
 
-// 4. Soumission du formulaire de personnalisation
 document.getElementById('form-sandwich').addEventListener('submit', function(e) {
     e.preventDefault();
 
     const form = e.target;
 
-    // Récupérer les sauces
     const saucesSelectionnees = [];
     document.querySelectorAll('input[name="sauces_sandwich[]"]:checked').forEach(cb => {
         saucesSelectionnees.push(cb.value);
     });
 
-    // Récupérer les crudités
     const cruditesSelectionnees = [];
     document.querySelectorAll('input[name="crudites[]"]:checked').forEach(cb => {
         cruditesSelectionnees.push(cb.value);
@@ -669,11 +650,9 @@ document.getElementById('form-sandwich').addEventListener('submit', function(e) 
 
     const painChoisi = sandwichEnCours.nom.toLowerCase().includes('panini') ? 'Pain Panini' : document.getElementById('pain_choix').value;
 
-    // Suppléments + option Menu (+1€ avec une boisson)
     const extra = getSupplementsEtMenu(form);
     const prixFinal = sandwichEnCours.prix + extra.supplementsTotal + extra.menuTotal;
 
-    // Création de l'objet pour le panier
     const sandwichPersonnalise = {
         id: sandwichEnCours.id,
         nom: sandwichEnCours.nom,
@@ -699,11 +678,9 @@ document.getElementById('form-sandwich').addEventListener('submit', function(e) 
 
 
 
-// 1. Ouvrir la pop-up et mémoriser le produit
 function ouvrirModalTacos(id, nom, prix) {
     produitEnCours = { id: id, nom: nom, prix: parseFloat(prix) };
 
-    // Déterminer le nombre de viandes max selon le nom du tacos
     if (nom.toLowerCase().includes("3 viandes") || nom.toLowerCase().includes("triple")) {
         maxViandesPermis = 3;
     } else if (nom.toLowerCase().includes("2 viandes") || nom.toLowerCase().includes("double")) {
@@ -716,7 +693,6 @@ function ouvrirModalTacos(id, nom, prix) {
     document.getElementById('modal-tacos').style.display = 'flex';
 }
 
-// 2. Gérer la limitation des cases cochées
 const checkboxes = document.querySelectorAll('input[name="viandes[]"]');
 checkboxes.forEach(cb => {
     cb.addEventListener('change', () => {
@@ -728,7 +704,6 @@ checkboxes.forEach(cb => {
     });
 });
 
-// 3. Afficher ou masquer le choix de la sauce pour les frites
 function toggleSauceFrites() {
     const frites = document.getElementById('frites_cote').value;
     const secSauce = document.getElementById('sec-sauce-frites');
@@ -739,7 +714,6 @@ function toggleSauceFrites() {
     }
 }
 
-// 4. Fermer la pop-up et réinitialiser
 function fermerModal() {
     document.getElementById('modal-tacos').style.display = 'none';
     checkboxes.forEach(cb => cb.checked = false);
@@ -749,19 +723,16 @@ function fermerModal() {
     editEnCours = { actif: false, cartId: null };
 }
 
-// 5. Intercepter la validation du formulaire de Tacos
 document.getElementById('form-tacos').addEventListener('submit', function(e) {
-    e.preventDefault(); // Empêche le rechargement de la page
+    e.preventDefault();
 
     const form = e.target;
 
-    // Récupérer les viandes sélectionnées
     const viandesSelectionnees = [];
     document.querySelectorAll('input[name="viandes[]"]:checked').forEach(cb => {
         viandesSelectionnees.push(cb.value);
     });
 
-    // Validation : Est-ce que l'utilisateur a bien choisi le bon nombre de viandes ?
     if (viandesSelectionnees.length < maxViandesPermis) {
         alert("Veuillez choisir exactement " + maxViandesPermis + " viande(s) pour composer votre Tacos !");
         return;
@@ -770,11 +741,9 @@ document.getElementById('form-tacos').addEventListener('submit', function(e) {
     const fritesCote = document.getElementById('frites_cote').value;
     const sauceFrites = fritesCote === 'Oui' ? document.querySelector('select[name="sauce_frites"]').value : 'Aucune';
 
-    // Suppléments + option Menu (+1€ avec une boisson)
     const extra = getSupplementsEtMenu(form);
     const prixFinal = produitEnCours.prix + extra.supplementsTotal + extra.menuTotal;
 
-    // Création de l'objet produit personnalisé pour le panier
     const produitPersonnalise = {
         id: produitEnCours.id,
         nom: produitEnCours.nom,
@@ -799,7 +768,7 @@ document.getElementById('form-tacos').addEventListener('submit', function(e) {
     );
 });
 
-// ===== Popup Burger =====
+// popup burger
 function ouvrirModalBurger(id, nom, prix) {
     burgerEnCours = { id: id, nom: nom, prix: parseFloat(prix) };
     document.getElementById('burger-title').innerText = `🍔 Personnalise ton ${nom}`;
@@ -851,7 +820,7 @@ document.getElementById('form-burger').addEventListener('submit', function(e) {
     );
 });
 
-// ===== Popup Assiette =====
+// popup assiette
 function ouvrirModalAssiette(id, nom, prix) {
     assietteEnCours = { id: id, nom: nom, prix: parseFloat(prix) };
     document.getElementById('assiette-title').innerText = `🍽️ Personnalise ton ${nom}`;
@@ -902,7 +871,7 @@ document.getElementById('form-assiette').addEventListener('submit', function(e) 
     );
 });
 
-// ===== Popup Sauce simple (barquettes frites + Menu Kids Nuggets) =====
+// popup sauce seule : barquettes frites + kids nuggets
 function ouvrirModalSauce(id, nom, prix) {
     sauceEnCours = { id: id, nom: nom, prix: parseFloat(prix) };
     document.getElementById('sauce-title').innerText = `🥫 Choisis ta sauce pour ${nom}`;
@@ -935,7 +904,7 @@ document.getElementById('form-sauce').addEventListener('submit', function(e) {
     );
 });
 
-// ===== Popup Menu Kids Cheese (sauce + crudités, prix fixe car boisson déjà incluse) =====
+// popup kids cheese : sauce + crudités, prix fixe (boisson déjà incluse)
 function ouvrirModalKidsCheese(id, nom, prix) {
     kidsCheeseEnCours = { id: id, nom: nom, prix: parseFloat(prix) };
     document.getElementById('kids-cheese-title').innerText = `🧒 Personnalise ton ${nom}`;
@@ -973,7 +942,6 @@ document.getElementById('form-kids-cheese').addEventListener('submit', function(
 });
 
 function filtrerCategorie(categorieCible, boutonClike) {
-    // 1. Mettre à jour le style de tous les boutons de catégories
     const boutons = document.querySelectorAll('.btn-category');
     boutons.forEach(btn => {
         btn.style.background = 'white';
@@ -981,27 +949,24 @@ function filtrerCategorie(categorieCible, boutonClike) {
         btn.style.borderColor = '#ddd';
     });
 
-    // 2. Activer visuellement le bouton cliqué
     if (boutonClike) {
-        boutonClike.style.background = '#e74c3c'; // Rouge Resto Étoile
+        boutonClike.style.background = '#e74c3c';
         boutonClike.style.color = 'white';
         boutonClike.style.borderColor = '#e74c3c';
     }
 
-    // 3. Afficher ou masquer les cartes produits de la page
     const cartes = document.querySelectorAll('.product-card');
     cartes.forEach(carte => {
         const categorieCarte = carte.getAttribute('data-category');
-        
+
         if (categorieCible === 'tous' || categorieCarte === categorieCible) {
-            carte.style.display = ''; // On affiche
+            carte.style.display = '';
         } else {
-            carte.style.display = 'none'; // On masque
+            carte.style.display = 'none';
         }
     });
 }
 
-// Si on arrive depuis le panier avec ?edit=<cartId>, on ouvre directement la bonne popup pré-remplie
 chargerArticlePourModification();
 </script>
 

@@ -4,14 +4,14 @@ include($_SERVER['DOCUMENT_ROOT'] . '/header.php');
 include($_SERVER['DOCUMENT_ROOT'] . '/commande_functions.php');
 include($_SERVER['DOCUMENT_ROOT'] . '/upload_functions.php');
 
-// SÉCURITÉ : Vérifie si l'utilisateur est connecté ET s'il est bien admin
+// vérifie que l'utilisateur est bien admin
 if (!isset($_SESSION['user_id']) || !isset($_SESSION['user_role']) || $_SESSION['user_role'] !== 'admin') {
     echo "<div class='container' style='text-align:center; margin-top:50px;'>";
     echo "<h2 style='color:var(--brand-red);'>⛔ Accès Refusé</h2>";
     echo "<p>Vous n'avez pas l'autorisation d'accéder à cette page.</p>";
     echo "<br><a href='/index.php' class='btn'>Retour à l'accueil</a>";
     echo "</div>";
-    exit(); // Arrête le chargement du reste de la page
+    exit();
 }
 
 if (isset($_GET['action']) && isset($_GET['id'])) {
@@ -28,12 +28,12 @@ if (isset($_GET['action']) && isset($_GET['id'])) {
         mysqli_query($conn, $update_query);
     }
     
-    // Redirection pour nettoyer l'URL et rafraîchir la page
+    // nettoie l'URL après l'action
     header("Location: /pages/admin.php");
     exit();
 }
 
-// 🆕 CHANGEMENT DE STATUT D'UNE COMMANDE
+// changement de statut d'une commande
 if (isset($_GET['action_commande']) && isset($_GET['id_commande'])) {
     csrf_verify();
 
@@ -52,7 +52,7 @@ if (isset($_GET['action_commande']) && isset($_GET['id_commande'])) {
     exit();
 }
 
-// 🆕 TRAITEMENT DE LA SUPPRESSION DÉFINITIVE D'UNE RÉSERVATION PAR L'ADMIN
+// suppression définitive d'une réservation
 if (isset($_GET['delete_reservation'])) {
     csrf_verify();
 
@@ -65,7 +65,7 @@ if (isset($_GET['delete_reservation'])) {
     }
 }
 
-// 🆕 TRAITEMENT DE LA SUPPRESSION D'UN PRODUIT
+// suppression d'un produit
 if (isset($_GET['delete_product'])) {
     csrf_verify();
 
@@ -173,15 +173,13 @@ if (isset($_GET['delete_product'])) {
             </thead>
             <tbody>
                 <?php
-                // Récupère toutes les réservations avec le nom du client
-                $query = "SELECT r.*, u.nom FROM reservations r 
+                $query = "SELECT r.*, u.nom FROM reservations r
                         JOIN utilisateurs u ON r.user_id = u.id 
                         ORDER BY r.date_reservation DESC, r.heure_reservation DESC";
                 $result = mysqli_query($conn, $query);
 
                 if (mysqli_num_rows($result) > 0) {
                     while ($row = mysqli_fetch_assoc($result)) {
-                        // Définition de la couleur du statut
                         $color = 'orange';
                         if ($row['statut'] === 'Confirmé') $color = 'green';
                         if ($row['statut'] === 'Annulé') $color = 'red';
@@ -192,20 +190,16 @@ if (isset($_GET['delete_product'])) {
                         echo "<td>" . htmlspecialchars($row['heure_reservation']) . "</td>";
                         echo "<td>" . intval($row['nb_personnes']) . "</td>";
                         echo "<td style='color:$color; font-weight:bold;'>" . htmlspecialchars($row['statut']) . "</td>";
-                        
-                        // BOUTONS D'ACTION POUR L'ADMIN
+
                         echo "<td>";
-                        
-                        // 1. Actions rapides de statut (uniquement si en attente)
+
                         if ($row['statut'] === 'En attente') {
                             echo "<a href='" . csrf_url("/pages/admin.php?action=confirmer&id=" . $row['id']) . "' class='btn' style='background-color:#2ecc71; padding:5px 10px; font-size:0.8rem; margin-right:5px;'>✔ Confirmer</a>";
                             echo "<a href='" . csrf_url("/pages/admin.php?action=annuler&id=" . $row['id']) . "' class='btn' style='background-color:#e74c3c; padding:5px 10px; font-size:0.8rem; margin-right:5px;' onclick=\"return confirm('Annuler cette réservation ?');\">❌ Annuler</a>";
                         }
 
-                        // 2. Bouton Modifier
                         echo "<a href='/pages/modifier_reservation_admin.php?id=" . $row['id'] . "' class='btn' style='background-color:#3498db; padding:5px 10px; font-size:0.8rem; margin-right:5px;'>✏️ Modifier</a>";
 
-                        // 3. Bouton Supprimer définitivement
                         echo "<a href='" . csrf_url("/pages/admin.php?delete_reservation=" . $row['id']) . "' class='btn' style='background-color:#95a5a6; padding:5px 10px; font-size:0.8rem;' onclick=\"return confirm('Supprimer définitivement cette réservation de la base de données ?');\">🗑️ Supprimer</a>";
                         
                         echo "</td>";
@@ -224,7 +218,6 @@ if (isset($_GET['delete_product'])) {
         <br>
         
         <?php
-        // Traitement de l'ajout du produit
         if (isset($_POST['ajouter_produit'])) {
             csrf_verify();
 
@@ -314,7 +307,6 @@ if (isset($_GET['delete_product'])) {
             </thead>
             <tbody>
                 <?php
-                // Récupère tous les produits de la base de données
                 $prod_query = "SELECT * FROM produits ORDER BY categorie DESC, nom ASC";
                 $prod_result = mysqli_query($conn, $prod_query);
 
@@ -330,10 +322,8 @@ if (isset($_GET['delete_product'])) {
                         echo "<td>" . number_format($prod['prix'], 2) . " €</td>";
 
                         echo "<td>";
-                        // Bouton Modifier
                         echo "<a href='/pages/modifier_produit.php?id=" . $prod['id'] . "' class='btn' style='background-color:#3498db; padding:5px 10px; font-size:0.8rem; margin-right:5px;'>Modifier</a>";
 
-                        // Bouton Retirer
                         echo "<a href='" . csrf_url("/pages/admin.php?delete_product=" . $prod['id']) . "' class='btn' style='background-color:#e74c3c; padding:5px 10px; font-size:0.8rem;' onclick=\"return confirm('Voulez-vous vraiment retirer " . addslashes($prod['nom']) . " de la carte ?');\">Retirer</a>";
                         echo "</td>";
 

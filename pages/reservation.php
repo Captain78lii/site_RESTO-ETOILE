@@ -4,7 +4,6 @@ include($_SERVER['DOCUMENT_ROOT'] . '/header.php');
 
 $message = "";
 
-// 2. Traitement du formulaire
 if (isset($_POST['reserver'])) {
     csrf_verify();
 
@@ -16,11 +15,10 @@ if (isset($_POST['reserver'])) {
         $heure = $_POST['heure_res'];
         $personnes = intval($_POST['nb_personnes']);
 
-        // 🆕 Requête préparée
         $stmt = mysqli_prepare($conn, "INSERT INTO reservations (user_id, date_reservation, heure_reservation, nb_personnes) VALUES (?, ?, ?, ?)");
-        
+
         if ($stmt) {
-            // i = integer, s = string (user_id, date, heure, personnes) -> "issi"
+            // issi = int, string, string, int
             mysqli_stmt_bind_param($stmt, "issi", $user_id, $date, $heure, $personnes);
             
             if (mysqli_stmt_execute($stmt)) {

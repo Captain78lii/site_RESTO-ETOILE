@@ -3,7 +3,6 @@ include($_SERVER['DOCUMENT_ROOT'] . '/db.php');
 include($_SERVER['DOCUMENT_ROOT'] . '/header.php');
 include($_SERVER['DOCUMENT_ROOT'] . '/commande_functions.php');
 
-// Sécurité : si pas connecté, on renvoie à la connexion
 if (!isset($_SESSION['user_id'])) {
     header("Location: login.php");
     exit();
@@ -11,20 +10,16 @@ if (!isset($_SESSION['user_id'])) {
 
 $user_id = $_SESSION['user_id'];
 
-// 1. Récupère les infos de l'utilisateur
 $query_user = "SELECT * FROM utilisateurs WHERE id = '$user_id'";
 $res_user = mysqli_query($conn, $query_user);
 $user_data = mysqli_fetch_assoc($res_user);
 
-// 2. Récupère ses réservations
 $query_res = "SELECT * FROM reservations WHERE user_id = '$user_id' ORDER BY date_reservation DESC";
 $res_reservations = mysqli_query($conn, $query_res);
 
-// 3. Récupère ses avis
 $query_avis = "SELECT * FROM avis WHERE user_id = '$user_id' ORDER BY date_publication DESC";
 $res_avis = mysqli_query($conn, $query_avis);
 
-// 4. Récupère ses commandes
 $user_id_int = intval($user_id);
 $query_commandes = "SELECT * FROM commandes WHERE user_id = $user_id_int ORDER BY date_commande DESC";
 $res_commandes = mysqli_query($conn, $query_commandes);

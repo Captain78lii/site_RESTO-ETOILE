@@ -11,5 +11,5 @@ if (isset($_GET['id']) && isset($_SESSION['user_id'])) {
     $query = "DELETE FROM avis WHERE id = $id_avis AND user_id = $user_id";
     mysqli_query($conn, $query);
 }
-header("Location: profil.php"); // revient sur le profil
+header("Location: profil.php");
 exit();

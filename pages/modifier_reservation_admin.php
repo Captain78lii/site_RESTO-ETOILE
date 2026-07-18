@@ -2,7 +2,7 @@
 include($_SERVER['DOCUMENT_ROOT'] . '/db.php');
 include($_SERVER['DOCUMENT_ROOT'] . '/header.php');
 
-// Sécurité : Seul l'administrateur peut modifier n'importe quelle réservation
+// admin uniquement
 if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] !== 'admin') {
     echo "<div class='container'><p style='color:red; text-align:center; font-weight:bold; margin-top:50px;'>Accès refusé.</p></div>";
     exit();
@@ -15,8 +15,7 @@ if (!isset($_GET['id'])) {
 
 $id_res = intval($_GET['id']);
 
-// 1. Récupération des informations actuelles de la réservation avec le nom du client
-$query = "SELECT r.*, u.nom FROM reservations r 
+$query = "SELECT r.*, u.nom FROM reservations r
           JOIN utilisateurs u ON r.user_id = u.id 
           WHERE r.id = $id_res";
 $result = mysqli_query($conn, $query);
@@ -29,7 +28,6 @@ if (!$res_data) {
 
 $message = "";
 
-// 2. Traitement du formulaire
 if (isset($_POST['modifier_reservation'])) {
     csrf_verify();
 

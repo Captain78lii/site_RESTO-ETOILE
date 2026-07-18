@@ -1,13 +1,5 @@
 <?php
-// Gère l'upload d'une image produit envoyée depuis un formulaire admin (ajout ou modification).
-//
-// $nom_champ      : nom du <input type="file"> dans le formulaire
-// $image_courante : nom de fichier déjà en base à conserver si aucun nouveau fichier n'est envoyé (mode édition)
-//
-// Retourne :
-//   - le nom du fichier généré (string) en cas d'upload réussi
-//   - $image_courante si aucun fichier n'a été envoyé
-//   - ['erreur' => "..."] si le fichier envoyé est invalide
+// upload image produit ; retourne le nom du fichier, $image_courante si rien envoyé, ou ['erreur' => ...]
 function handle_image_upload($nom_champ, $image_courante = null) {
     if (!isset($_FILES[$nom_champ]) || $_FILES[$nom_champ]['error'] === UPLOAD_ERR_NO_FILE) {
         return $image_courante;
@@ -37,8 +29,7 @@ function handle_image_upload($nom_champ, $image_courante = null) {
         return ['erreur' => "Format d'image non supporté (jpg, png, gif ou webp uniquement)."];
     }
 
-    // Vérifie le vrai type MIME du contenu (pas seulement l'extension du nom de fichier),
-    // pour empêcher qu'un fichier malveillant déguisé en .jpg soit accepté.
+    // vérifie le vrai MIME, pas juste l'extension (évite un fichier déguisé en .jpg)
     $finfo = finfo_open(FILEINFO_MIME_TYPE);
     $mime_reel = finfo_file($finfo, $fichier['tmp_name']);
     finfo_close($finfo);
@@ -47,7 +38,7 @@ function handle_image_upload($nom_champ, $image_courante = null) {
         return ['erreur' => "Le fichier envoyé n'est pas une image valide."];
     }
 
-    // Nom de fichier généré côté serveur : jamais le nom fourni par l'utilisateur (évite toute tentative d'écrasement ou de traversée de chemin)
+    // nom généré côté serveur, jamais celui de l'utilisateur (path traversal)
     $nom_fichier = uniqid('produit_', true) . '.' . $extension;
     $chemin_destination = __DIR__ . '/images/' . $nom_fichier;
 

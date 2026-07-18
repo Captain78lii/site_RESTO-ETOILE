@@ -2,13 +2,12 @@
 include($_SERVER['DOCUMENT_ROOT'] . '/db.php');
 header('Content-Type: application/json');
 
-// vérifie si l'utilisateur est connecté
 if (!isset($_SESSION['user_id'])) {
     echo json_encode(['status' => 'error', 'message' => 'Vous devez être connecté pour commander.']);
     exit;
 }
 
-// Vérifie le jeton CSRF envoyé via l'en-tête X-CSRF-Token (l'appel se fait en fetch/JSON, pas via un <form>)
+// via header X-CSRF-Token, pas de <form> ici (appel fetch/JSON)
 $jeton_recu = $_SERVER['HTTP_X_CSRF_TOKEN'] ?? '';
 $jeton_attendu = $_SESSION['csrf_token'] ?? '';
 if (!$jeton_attendu || !hash_equals($jeton_attendu, $jeton_recu)) {
@@ -19,8 +18,7 @@ if (!$jeton_attendu || !hash_equals($jeton_attendu, $jeton_recu)) {
 
 $user_id = intval($_SESSION['user_id']);
 
-// Prix des suppléments et du passage en Menu : dupliqués côté serveur (voir pages/produits.php)
-// pour ne jamais faire confiance au prix envoyé par le navigateur.
+// dupliqué de pages/produits.php : jamais confiance au prix envoyé par le client
 $SUPPLEMENTS_PRIX = [
     'Cheddar' => 0.50,
     'Œuf' => 0.50,
@@ -39,8 +37,7 @@ if (!is_array($panier) || count($panier) === 0) {
     exit;
 }
 
-// Recalcule chaque ligne à partir du prix en base + des règles de suppléments/menu,
-// afin qu'un panier trafiqué côté client ne puisse pas changer le prix payé.
+// recalcule tout depuis la BD, pour ignorer un panier trafiqué côté client
 $lignes = [];
 $total = 0;
 
@@ -111,7 +108,6 @@ try {
     }
     mysqli_stmt_close($stmt);
 
-    // +1 point de fidélité par commande validée
     mysqli_query($conn, "UPDATE utilisateurs SET points_fidelite = points_fidelite + 1 WHERE id = $user_id");
 
     mysqli_commit($conn);

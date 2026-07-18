@@ -4,7 +4,6 @@ include($_SERVER['DOCUMENT_ROOT'] . '/header.php');
 
 $message = "";
 
-// 1. Traitement de l'envoi d'un nouvel avis
 if (isset($_POST['publier_avis'])) {
     if (!isset($_SESSION['user_id'])) {
         $message = "<p style='color:red;'>Connectez-vous pour laisser un avis.</p>";
@@ -22,7 +21,6 @@ if (isset($_POST['publier_avis'])) {
     }
 }
 
-// 2. Récupération avis existants
 $query_avis = "SELECT avis.*, utilisateurs.nom FROM avis 
                JOIN utilisateurs ON avis.user_id = utilisateurs.id 
                ORDER BY date_publication DESC";
