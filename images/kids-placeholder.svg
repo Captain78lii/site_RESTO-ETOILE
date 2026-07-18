@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+  <rect width="200" height="200" fill="#fdf3e7"/>
+  <rect x="60" y="70" width="80" height="90" rx="6" fill="#f1c40f"/>
+  <polygon points="60,70 140,70 130,55 70,55" fill="#f39c12"/>
+  <rect x="92" y="40" width="16" height="20" fill="#c0392b"/>
+  <circle cx="100" cy="115" r="22" fill="#fff" opacity="0.85"/>
+  <text x="100" y="123" font-size="20" text-anchor="middle" font-family="Arial, sans-serif">🧃</text>
+</svg>

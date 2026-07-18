@@ -1,0 +1,17 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "portfolio-dev",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["--prefix", "C:/xampp/htdocs/portfolio", "run", "dev"],
+      "port": 5173
+    },
+    {
+      "name": "restoetoile-dev",
+      "runtimeExecutable": "C:/xampp/php/php.exe",
+      "runtimeArgs": ["-S", "localhost:8000", "-t", "C:/xampp/htdocs/RestoEtoile"],
+      "port": 8000
+    }
+  ]
+}
