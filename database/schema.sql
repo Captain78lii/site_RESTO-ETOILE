@@ -1,10 +1,8 @@
 -- RestoEtoile — schéma de base de données (structure réelle, exportée depuis MySQL local).
--- Ne contient aucune donnée personnelle : à importer tel quel dans Railway.
-
-CREATE DATABASE IF NOT EXISTS resto_etoile_db
-  CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
-
-USE resto_etoile_db;
+-- Ne contient aucune donnée personnelle.
+-- Pas de CREATE DATABASE / USE ici : sur un hébergement mutualisé (InfinityFree...),
+-- la base existe déjà et on n'a pas le droit d'en créer une nouvelle — sélectionnez
+-- la bonne base dans phpMyAdmin avant d'importer ce fichier.
 
 CREATE TABLE utilisateurs (
   id INT(11) NOT NULL AUTO_INCREMENT,
